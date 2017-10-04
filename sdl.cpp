@@ -84,6 +84,10 @@ void canvas::_draw()
                         // Draw line from last point to current point and refresh the renderer
                         SDL_RenderDrawLine(renderer, last_pix_X, last_pix_Y,
                                                      cur_pix_X, cur_pix_Y);
+                        SDL_RenderDrawLine(renderer, last_pix_X+1, last_pix_Y,
+                                                     cur_pix_X+1, cur_pix_Y);
+                        SDL_RenderDrawLine(renderer, last_pix_X, last_pix_Y-1,
+                                                     cur_pix_X, cur_pix_Y-1);
                         SDL_RenderPresent(renderer);
                         last_pix_X = cur_pix_X;
                         last_pix_Y = cur_pix_Y;
@@ -93,7 +97,10 @@ void canvas::_draw()
 
             case SDL_MOUSEBUTTONUP:
                 if (event.button.button == SDL_BUTTON_LEFT)
+		{
                     leftMouseButtonDown = false;
+		    last_pix_X = -1;
+		}
                 if (event.button.button == SDL_BUTTON_RIGHT)
                     rightMouseButtonDown = false;
                 break;
@@ -110,6 +117,7 @@ void canvas::_draw()
                     // Keep drawing in white afterwards
                     SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
                     rightMouseButtonDown = true;
+		    last_pix_X = -1;
                 }
                 break;
         }
