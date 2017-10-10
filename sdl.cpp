@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include <iostream>
 using namespace std;
@@ -21,6 +22,8 @@ class canvas
         SDL_Window * window;
         SDL_Event event;
         SDL_bool done = SDL_FALSE;
+        SDL_Surface *surface;
+        SDL_Texture *texture;
 
     public:
         canvas(int w, int h);
@@ -40,15 +43,20 @@ void canvas::create_window()
 
     // Start the SDL widget
     SDL_Init(SDL_INIT_VIDEO);
-    
+
     // Draw the main window and instanciate the cursor
     SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
+
+    SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
 
     // Set the color to Black, render that color and show it
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer);
 
     SDL_SetWindowTitle(window, "Magic Drawing");
+
+    SDL_ShowCursor(SDL_DISABLE);
+
     SDL_RenderPresent(renderer);
 
 }
@@ -65,6 +73,17 @@ void canvas::_draw()
         {
             case SDL_QUIT:
                 done = SDL_TRUE;
+                break;
+
+            case SDL_KEYDOWN:
+                surface = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+
+
+                SDL_SetRenderTarget(renderer, texture);
+
+                SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, surface->pixels, surface->pitch);
+                IMG_SavePNG(surface, "image.bmp");
+                SDL_FreeSurface(surface);
                 break;
 
             case SDL_MOUSEMOTION:
@@ -97,10 +116,10 @@ void canvas::_draw()
 
             case SDL_MOUSEBUTTONUP:
                 if (event.button.button == SDL_BUTTON_LEFT)
-		{
+                {
                     leftMouseButtonDown = false;
-		    last_pix_X = -1;
-		}
+                    last_pix_X = -1;
+                }
                 if (event.button.button == SDL_BUTTON_RIGHT)
                     rightMouseButtonDown = false;
                 break;
@@ -117,7 +136,7 @@ void canvas::_draw()
                     // Keep drawing in white afterwards
                     SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
                     rightMouseButtonDown = true;
-		    last_pix_X = -1;
+                    last_pix_X = -1;
                 }
                 break;
         }
