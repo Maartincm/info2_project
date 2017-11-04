@@ -29,4 +29,3 @@ class canvas
         void create_window();
         void _draw();
 };
-
