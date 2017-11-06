@@ -23,6 +23,7 @@ canvas::canvas (int w, int h)
     last_pix_Y = -1;
     leftMouseButtonDown = false;
     rightMouseButtonDown = false;
+    mirror.active = false;
 }
 
 void canvas::create_window()
@@ -40,10 +41,91 @@ void canvas::create_window()
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer);
 
+    this->draw_mirror();
+
     SDL_SetWindowTitle(window, "Magic Drawing");
 
     SDL_RenderPresent(renderer);
 
+}
+
+void canvas::draw_mirror()
+{
+    mirror.texture = IMG_LoadTexture(renderer, "images/mirror.png");
+    SDL_QueryTexture(mirror.texture, NULL, NULL, &mirror.width, &mirror.height); // get the width and height of the texture
+    mirror.size.w = mirror.width / 15;
+    mirror.size.h = mirror.height / 15;
+    mirror.size.x = width - mirror.size.w;
+    mirror.size.y = height - mirror.size.h;
+
+    SDL_RenderCopy(renderer, mirror.texture, NULL, &mirror.size);
+    this -> draw_red_cross();
+}
+
+void canvas::draw_green_tick()
+{
+    greentick.texture = IMG_LoadTexture(renderer, "images/greentick.png");
+    SDL_QueryTexture(greentick.texture, NULL, NULL, &greentick.width, &greentick.height); // get the width and height of the texture
+    greentick.size.w = greentick.width / 14;
+    greentick.size.h = greentick.height / 12;
+    greentick.size.x = width - greentick.size.w;
+    greentick.size.y = height - greentick.size.h;
+
+    SDL_RenderCopy(renderer, greentick.texture, NULL, &greentick.size);
+    SDL_RenderPresent(renderer);
+}
+
+void canvas::draw_red_cross()
+{
+    redcross.texture = IMG_LoadTexture(renderer, "images/redcross.png");
+    SDL_QueryTexture(redcross.texture, NULL, NULL, &redcross.width, &redcross.height); // get the width and height of the texture
+    redcross.size.w = redcross.width / 32;
+    redcross.size.h = redcross.height / 32;
+    redcross.size.x = width - redcross.size.w;
+    redcross.size.y = height - redcross.size.h;
+
+    SDL_RenderCopy(renderer, redcross.texture, NULL, &redcross.size);
+    SDL_RenderPresent(renderer);
+}
+
+void canvas::draw_classic_line(){
+    SDL_RenderDrawLine(renderer, last_pix_X, last_pix_Y,
+        cur_pix_X, cur_pix_Y);
+
+    SDL_RenderDrawLine(renderer, last_pix_X+1, last_pix_Y,
+        cur_pix_X+1, cur_pix_Y);
+
+    SDL_RenderDrawLine(renderer, last_pix_X, last_pix_Y-1,
+        cur_pix_X, cur_pix_Y-1);
+
+    SDL_RenderPresent(renderer);
+}
+
+void canvas::draw_mirror_line(){
+    SDL_RenderDrawLine(renderer, last_pix_X+2*(unsigned int) (width/2 - last_pix_X),
+        last_pix_Y, cur_pix_X+2*(unsigned int)(width/2 -  cur_pix_X), cur_pix_Y);
+
+    SDL_RenderDrawLine(renderer, last_pix_X+2*(unsigned int) (width/2 - last_pix_X)+1,
+        last_pix_Y, cur_pix_X+2*(unsigned int)(width/2 -  cur_pix_X), cur_pix_Y);
+
+    SDL_RenderDrawLine(renderer, last_pix_X+2*(unsigned int)(width/2 - last_pix_X),
+        last_pix_Y-1, cur_pix_X+2*(unsigned int)(width/2 -  cur_pix_X), cur_pix_Y-1);
+
+    this -> draw_classic_line();
+}
+
+void canvas::check_mirror_state()
+{
+    if (mirror.active)
+    {
+        this -> draw_red_cross();
+        mirror.active = false;
+    }
+    else
+    {
+        this -> draw_green_tick();
+        mirror.active = true;
+    }
 }
 
 void canvas::_draw()
@@ -63,108 +145,26 @@ void canvas::_draw()
 
 
             case SDL_KEYDOWN:
-                surface = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
-                if (state[SDL_SCANCODE_TAB])
-                {
-                    i++;
-                    eraser=0;
-                }
+                // surface = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+                // if (state[SDL_SCANCODE_TAB])
+                // {
+                //     i++;
+                //     eraser=0;
+                // }
+                //
+                // if (state[SDL_SCANCODE_N])
+                // {
+                //     T=1;
+                // }
+                //
+                // if (state[SDL_SCANCODE_M])
+                // {
+                //     T=2;
+                // }
 
-                if (state[SDL_SCANCODE_N])
-                {
-                    T=1;
-                }
-
-                if (state[SDL_SCANCODE_M])
-                {
-                    T=2;
-                }
-
-				switch(i)
-                {
-
-                    case(1):
-                        if(T==1)
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: WHITE");
-                        }
-                        else
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: MIRROR WHITE");
-                        }
-                        break;
-
-                    case(2):
-                        if(T==1)
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: RED");
-                        }
-                        else
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: MIRROR RED");
-                        }
-                        break;
-
-                    case(3):
-                        if(T==1)
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: ORANAGE");
-                        }
-                        else
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: MIRROR ORANGE");
-                        }
-                        break;
-
-                    case(4):
-                        if(T==1)
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: YELLOW");
-                        }
-                        else
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: MIRROR YELLOW");
-                        }
-                        break;
-
-                    case(5):
-                        if(T==1)
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: GREEN");
-                        }
-                        else
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: MIRROR GREEN");
-                        }
-                        break;
-
-                    case(6):
-                        if(T==1)
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: CIAM");
-                        }
-                        else
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: MIRROR CIAM");
-                        }
-                        break;
-
-                    case(7):
-                        if(T==1)
-                        {
-                            SDL_SetWindowTitle(window, "Magic Drawing: BLUE");
-                        }
-
-                        else
-                        {
-                            i=0;
-                            eraser=1;
-                        }
-
-                        SDL_SetRenderTarget(renderer, texture);
-                        SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, surface->pixels, surface->pitch);
-                        SDL_FreeSurface(surface);
-                        break;
+                // SDL_SetRenderTarget(renderer, texture);
+                // SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, surface->pixels, surface->pitch);
+                // SDL_FreeSurface(surface);
                 break;
 
 
@@ -178,108 +178,9 @@ void canvas::_draw()
                     }
                     else
                     {
-                        // Save current pointer position
-                        SDL_GetMouseState(&cur_pix_X, &cur_pix_Y);
                         // Set the cursor color to white, in order to contrast with the background
-                        switch(i)
-                        {
-							case(1):
-                                SDL_SetRenderDrawColor(renderer,255,255,255, SDL_ALPHA_OPAQUE);
-                                if(T==1)
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: WHITE");
-                                }
-                                else
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: MIRROR WHITE");
-                                }
-                                break;
-
-							case(2):
-                                SDL_SetRenderDrawColor(renderer,255,0,0, SDL_ALPHA_OPAQUE);
-                                if(T==1)
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: RED");
-                                }
-                                else
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: MIRROR RED");
-                                }
-                                break;
-
-							case(3):
-                                SDL_SetRenderDrawColor(renderer,255,80,0, SDL_ALPHA_OPAQUE);
-                                if(T==1)
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: ORANGE");
-                                }
-                                else
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: MIRROR ORANGE");
-                                }
-                                break;
-
-							case(4):
-                                SDL_SetRenderDrawColor(renderer,255,255,0, SDL_ALPHA_OPAQUE);
-                                if(T==1)
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: YELLOW");
-                                }
-                                else
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: MIRROR YELLOW");
-                                }
-                                break;
-
-							case(5):
-                                SDL_SetRenderDrawColor(renderer,0,255,0, SDL_ALPHA_OPAQUE);
-                                if(T==1)
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: GREEN");
-                                }
-                                else
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: MIRROR GREEN");
-                                }
-                                break;
-
-							case(6):
-                                SDL_SetRenderDrawColor(renderer,0,255,255, SDL_ALPHA_OPAQUE);
-                                if(T==1)
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: CIAM");
-                                }
-                                else
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: MIRROR CIAM");
-                                }
-                                break;
-
-							case(7):
-                                SDL_SetRenderDrawColor(renderer,0,0,255, SDL_ALPHA_OPAQUE);
-                                if(T==1)
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: BLUE");
-                                }
-                                else
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: MIRROR BLUE");
-                                }
-                                break;
-
-							case(8):
-                                SDL_SetRenderDrawColor(renderer,255,0,255, SDL_ALPHA_OPAQUE);
-                                if(T==1)
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: VIOLET");
-                                }
-                                else
-                                {
-                                    SDL_SetWindowTitle(window, "Magic Drawing: MIRROR VIOLET");
-                                }
-                                break;
-
-							case(9):
+                        // TODO rainbow
+							// case(9):
                                 if(red==254 && green<254 && blue==0)
                                 {
                                     green+=2;
@@ -315,61 +216,42 @@ void canvas::_draw()
                                 {
                                     SDL_SetWindowTitle(window, "Magic Drawing: MIRROR RAINBOW");
                                 }
-                                break;
+                    }
 
-                            default:
-                                if(i>0)
-                                {
-                                    i=1;
-                                }
-                        }
+                    if (eraser==1)
+                    {
+                        SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+                        // SDL_SetWindowTitle(window, "Magic Drawing: BORRADOR");
+                    }
 
-						if (eraser==1)
+                    if (state[SDL_SCANCODE_N])
+                    {
+                        T=1;
+                    }
+
+                    if (state[SDL_SCANCODE_M])
+                    {
+                        T=2;
+                    }
+
+                    // Save current pointer position
+                    SDL_GetMouseState(&cur_pix_X, &cur_pix_Y);
+                    //Avoid Drawing on top of Mirror image
+                    if (cur_pix_X > mirror.size.x && cur_pix_Y > mirror.size.y)
+                    {
+                        last_pix_X = -1;
+                    }
+                    else
+                    {
+                        if(!mirror.active)
                         {
-                            SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-                            SDL_SetWindowTitle(window, "Magic Drawing: BORRADOR");
+                            this -> draw_classic_line();
                         }
 
-                        if (state[SDL_SCANCODE_N])
+                        if(mirror.active)
                         {
-                            T=1;
+                            this -> draw_mirror_line();
                         }
-
-						if (state[SDL_SCANCODE_M])
-                        {
-                            T=2;
-                        }
-
-                        if(T==1)
-					    {
-                            SDL_RenderDrawLine(renderer, last_pix_X, last_pix_Y,
-                                                         cur_pix_X, cur_pix_Y);
-                            SDL_RenderDrawLine(renderer, last_pix_X+1, last_pix_Y,
-                                                         cur_pix_X+1, cur_pix_Y);
-                            SDL_RenderDrawLine(renderer, last_pix_X, last_pix_Y-1,
-                                                         cur_pix_X, cur_pix_Y-1);
-                            SDL_RenderPresent(renderer);
-						}
-
-						if(T==2)
-						{
-                            SDL_RenderDrawLine(renderer, last_pix_X+2*(unsigned int) (width/2 - last_pix_X), last_pix_Y,
-                                                         cur_pix_X+2*(unsigned int)(width/2 -  cur_pix_X), cur_pix_Y);
-                            SDL_RenderDrawLine(renderer, last_pix_X+2*(unsigned int) (width/2 - last_pix_X)+1, last_pix_Y,
-                                                         cur_pix_X+2*(unsigned int)(width/2 -  cur_pix_X), cur_pix_Y);
-                            SDL_RenderDrawLine(renderer, last_pix_X+2*(unsigned int)(width/2 - last_pix_X), last_pix_Y-1,
-                                                         cur_pix_X+2*(unsigned int)(width/2 -  cur_pix_X), cur_pix_Y-1);
-                            SDL_RenderPresent(renderer);
-
-                            SDL_RenderDrawLine(renderer, last_pix_X, last_pix_Y,
-                                                         cur_pix_X, cur_pix_Y);
-                            SDL_RenderDrawLine(renderer, last_pix_X+1, last_pix_Y,
-                                                         cur_pix_X+1, cur_pix_Y);
-                            SDL_RenderDrawLine(renderer, last_pix_X, last_pix_Y-1,
-                                                         cur_pix_X, cur_pix_Y-1);
-                            SDL_RenderPresent(renderer);
-                        }
-
                         last_pix_X = cur_pix_X;
                         last_pix_Y = cur_pix_Y;
                     }
@@ -393,31 +275,35 @@ void canvas::_draw()
                 if (event.button.button == SDL_BUTTON_LEFT)
                 {
                     leftMouseButtonDown = true;
+                    SDL_GetMouseState(&cur_pix_X, &cur_pix_Y);
+                    if (cur_pix_X > mirror.size.x && cur_pix_Y > mirror.size.y)
+                    {
+                        this -> check_mirror_state();
+                    }
                 }
                 if (event.button.button == SDL_BUTTON_RIGHT)
                 {
-					SDL_Surface *sshot = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
-					SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
-					printf("ingrese el nombre con el que se guardara el dibujo \n");
-					scanf("%s",name);
-					SDL_SaveBMP(sshot, name);
-					SDL_FreeSurface(sshot);
-                    // Color to black, and refresh to erase all the window
-                    SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-                    SDL_RenderClear(renderer);
-                    SDL_RenderPresent(renderer);
-                    // Keep drawing in white afterwards
-                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+				// 	SDL_Surface *sshot = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+				// 	SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
+				// 	printf("ingrese el nombre con el que se guardara el dibujo \n");
+				// 	scanf("%s",name);
+				// 	SDL_SaveBMP(sshot, name);
+				// 	SDL_FreeSurface(sshot);
+                //     // Color to black, and refresh to erase all the window
+                //     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+                //     SDL_RenderClear(renderer);
+                //     SDL_RenderPresent(renderer);
+                //     // Keep drawing in white afterwards
+                //     SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
                     rightMouseButtonDown = true;
-                    last_pix_X = -1;
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-                         "The creation was saved",
-                         "",
-                         NULL);
-
+                //     last_pix_X = -1;
+                //     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                //          "The creation was saved",
+                //          "",
+                //          NULL);
+                //
                 }
                 break;
-            }
         }
     }
 }

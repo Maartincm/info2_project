@@ -1,3 +1,12 @@
+struct Image
+{
+    SDL_Texture * texture;
+    SDL_Rect size;
+    int width;
+    int height;
+    bool active;
+};
+
 class canvas
 {
     private:
@@ -22,10 +31,19 @@ class canvas
         SDL_Renderer * renderer;
         SDL_Cursor * cursor;
         SDL_Event event;
+        struct Image mirror;
+        struct Image greentick;
+        struct Image redcross;
 
     public:
         canvas(int w, int h);
         ~canvas();
         void create_window();
+        void draw_mirror();
+        void draw_green_tick();
+        void draw_red_cross();
+        void draw_classic_line();
+        void draw_mirror_line();
+        void check_mirror_state();
         void _draw();
 };
