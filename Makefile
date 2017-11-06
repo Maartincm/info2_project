@@ -1,6 +1,6 @@
 CC = g++ #Compiler
 CFLAGS = -w #Compilation Flags
-LFLAGS = -lSDL2 -lSDL2main -lSDL2_image -lSDL2_gfx #Linking Flags
+LFLAGS = -lSDL2 -lSDL2main -lSDL2_image #Linking Flags
 
 .DEFAULT_GOAL := build
 

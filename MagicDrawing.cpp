@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
+#include <string.h>
 
 #include "MagicDrawing.h"
 
@@ -40,13 +41,9 @@ void canvas::create_window()
     // Set the color to Black, render that color and show it
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer);
+    strcpy(name, "Magic Drawing");
 
-    // this -> draw_rainbow();
-    // this -> draw_eraser();
-    // this -> draw_colorpicker();
-    // this -> draw_mirror();
-
-    SDL_SetWindowTitle(window, "Magic Drawing");
+    SDL_SetWindowTitle(window, name);
 
     // SDL_RenderPresent(renderer);
     this -> clean_window();
@@ -201,7 +198,6 @@ void canvas::draw_green_tick(char * source)
     }
 
     SDL_RenderCopy(renderer, greentick.texture, NULL, &greentick.size);
-    // SDL_RenderPresent(renderer);
 }
 
 void canvas::draw_red_cross(char * source)
@@ -225,7 +221,6 @@ void canvas::draw_red_cross(char * source)
     }
 
     SDL_RenderCopy(renderer, redcross.texture, NULL, &redcross.size);
-    // SDL_RenderPresent(renderer);
 }
 
 void canvas::draw_classic_line(){
@@ -271,7 +266,6 @@ void canvas::check_mirror_state()
 
 void canvas::_draw()
 {
-    int i=0,T=1;
     // Keep thw window open until it's explicitly closed
     while (!done)
     {
@@ -292,7 +286,7 @@ void canvas::_draw()
             case SDL_MOUSEMOTION:
                 if (leftMouseButtonDown)
                 {
-					SDL_ShowCursor(SDL_DISABLE);
+		    SDL_ShowCursor(SDL_DISABLE);
                     if (last_pix_X == -1)
                     {
                         SDL_GetMouseState(&last_pix_X, &last_pix_Y);
@@ -370,25 +364,11 @@ void canvas::_draw()
                 }
                 if (event.button.button == SDL_BUTTON_RIGHT)
                 {
-				// 	SDL_Surface *sshot = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
-				// 	SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
-				// 	printf("ingrese el nombre con el que se guardara el dibujo \n");
-				// 	scanf("%s",name);
-				// 	SDL_SaveBMP(sshot, name);
-				// 	SDL_FreeSurface(sshot);
-                //     // Color to black, and refresh to erase all the window
-                //     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-                //     SDL_RenderClear(renderer);
-                //     SDL_RenderPresent(renderer);
-                //     // Keep drawing in white afterwards
-                //     SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-                    rightMouseButtonDown = true;
-                //     last_pix_X = -1;
-                //     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-                //          "The creation was saved",
-                //          "",
-                //          NULL);
-                //
+		    SDL_Surface *sshot = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+		    SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
+		    SDL_SaveBMP(sshot, name);
+		    SDL_FreeSurface(sshot);
+		    rightMouseButtonDown = true;
                 }
                 break;
         }
@@ -406,7 +386,7 @@ canvas::~canvas()
 
 int main(int argc, char ** argv)
 {
-    int width = 1360;
+    int width = 1300;
     int height = 710;
     // SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION ,
     //                      "Instrucciones",
