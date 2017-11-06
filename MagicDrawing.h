@@ -2,6 +2,11 @@ struct Image
 {
     SDL_Texture * texture;
     SDL_Rect size;
+    SDL_RWops * rwop;
+    SDL_Surface * surface;
+    SDL_PixelFormat * pixelFormat;
+    Uint32 * pixels;
+    Uint32 pix;
     int width;
     int height;
     bool active;
@@ -17,9 +22,7 @@ class canvas
         int cur_pix_Y;
         int width;
         int height;
-        int red;
-        int green;
-        int blue;
+        Uint8 red, green, blue, alpha;
         int eraser;
         const Uint8 * state;
         bool leftMouseButtonDown;
@@ -34,16 +37,19 @@ class canvas
         struct Image mirror;
         struct Image greentick;
         struct Image redcross;
+        struct Image colorpicker;
 
     public:
         canvas(int w, int h);
         ~canvas();
         void create_window();
+        void draw_colorpicker();
         void draw_mirror();
         void draw_green_tick();
         void draw_red_cross();
         void draw_classic_line();
         void draw_mirror_line();
         void check_mirror_state();
+        void get_color();
         void _draw();
 };

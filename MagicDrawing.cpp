@@ -13,9 +13,9 @@ canvas::canvas (int w, int h)
 {
     width = w;
     height = h;
-    red=254;
-    green=0;
-    blue=0;
+    red=255;
+    green=255;
+    blue=255;
     eraser=0;
     state = SDL_GetKeyboardState(NULL);
     cursor = NULL;
@@ -41,12 +41,36 @@ void canvas::create_window()
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer);
 
-    this->draw_mirror();
+    this -> draw_colorpicker();
+    this -> draw_mirror();
 
     SDL_SetWindowTitle(window, "Magic Drawing");
 
     SDL_RenderPresent(renderer);
 
+}
+
+void canvas::draw_colorpicker()
+{
+    colorpicker.texture = IMG_LoadTexture(renderer, "images/colorpicker.png");
+    colorpicker.rwop = SDL_RWFromFile("images/colorpicker.png", "rb");
+    colorpicker.surface = IMG_LoadPNG_RW(colorpicker.rwop);
+    SDL_QueryTexture(colorpicker.texture, NULL, NULL, &colorpicker.width, &colorpicker.height); // get the width and height of the texture
+    colorpicker.size.w = colorpicker.width * 2;
+    colorpicker.size.h = colorpicker.height / 2;
+    colorpicker.size.x = width / 1024;
+    colorpicker.size.y = height - colorpicker.size.h;
+
+    SDL_RenderCopy(renderer, colorpicker.texture, NULL, &colorpicker.size);
+}
+
+void canvas::get_color()
+{
+    colorpicker.pixelFormat = colorpicker.surface -> format;
+    colorpicker.pixels = (Uint32 *)colorpicker.surface -> pixels;
+    colorpicker.pix = colorpicker.pixels[(((cur_pix_Y - colorpicker.size.y) * 2 * colorpicker.width) + (cur_pix_X - colorpicker.size.x) / 2 )];
+    SDL_GetRGBA(colorpicker.pix, colorpicker.pixelFormat, &red, &green, &blue, &alpha);
+    SDL_SetRenderDrawColor(renderer, red, green, blue, SDL_ALPHA_OPAQUE);
 }
 
 void canvas::draw_mirror()
@@ -237,7 +261,10 @@ void canvas::_draw()
                     // Save current pointer position
                     SDL_GetMouseState(&cur_pix_X, &cur_pix_Y);
                     //Avoid Drawing on top of Mirror image
-                    if (cur_pix_X > mirror.size.x && cur_pix_Y > mirror.size.y)
+                    if ((cur_pix_X > mirror.size.x && cur_pix_Y > mirror.size.y) || 
+                        ((cur_pix_X > colorpicker.size.x) && (cur_pix_Y > colorpicker.size.y) &&
+                        (cur_pix_X < (colorpicker.size.x + colorpicker.size.w)) &&
+                        (cur_pix_Y < (colorpicker.size.y + colorpicker.size.h))))
                     {
                         last_pix_X = -1;
                     }
@@ -279,6 +306,12 @@ void canvas::_draw()
                     if (cur_pix_X > mirror.size.x && cur_pix_Y > mirror.size.y)
                     {
                         this -> check_mirror_state();
+                    }
+                    if (cur_pix_X > colorpicker.size.x && cur_pix_Y > colorpicker.size.y &&
+                        cur_pix_X < colorpicker.size.x + colorpicker.size.w &&
+                        cur_pix_Y < colorpicker.size.y + colorpicker.size.h)
+                    {
+                        this -> get_color();
                     }
                 }
                 if (event.button.button == SDL_BUTTON_RIGHT)
