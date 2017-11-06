@@ -16,6 +16,9 @@ class canvas
 {
     private:
         char name[256];
+        time_t rawtime;
+        struct tm * timeinfo;
+        char date[128];
         int last_pix_X;
         int last_pix_Y;
         int cur_pix_X;

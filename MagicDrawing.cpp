@@ -364,11 +364,18 @@ void canvas::_draw()
                 }
                 if (event.button.button == SDL_BUTTON_RIGHT)
                 {
-		    SDL_Surface *sshot = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
-		    SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
-		    SDL_SaveBMP(sshot, name);
-		    SDL_FreeSurface(sshot);
-		    rightMouseButtonDown = true;
+                    SDL_Surface *sshot = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+                    SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
+                    time (&rawtime);
+                    timeinfo = localtime(&rawtime);
+                    strftime(date, sizeof(date), "%d-%m-%Y-%I-%M-%S", timeinfo);
+                    std::string str(date);
+                    const char * nm = str.c_str();
+
+                    SDL_SaveBMP(sshot, nm);
+                    SDL_FreeSurface(sshot);
+                    rightMouseButtonDown = true;
+                    cout << nm << "\n";
                 }
                 break;
         }
