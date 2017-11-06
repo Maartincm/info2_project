@@ -23,7 +23,6 @@ class canvas
         int width;
         int height;
         Uint8 red, green, blue, alpha;
-        int eraser;
         const Uint8 * state;
         bool leftMouseButtonDown;
         bool rightMouseButtonDown;
@@ -38,18 +37,25 @@ class canvas
         struct Image greentick;
         struct Image redcross;
         struct Image colorpicker;
+        struct Image eraser;
+        struct Image rainbow;
 
     public:
         canvas(int w, int h);
         ~canvas();
         void create_window();
+        void rainbow_progress();
+        void draw_rainbow();
+        void draw_eraser();
         void draw_colorpicker();
         void draw_mirror();
-        void draw_green_tick();
-        void draw_red_cross();
+        void draw_green_tick(char *);
+        void draw_red_cross(char *);
         void draw_classic_line();
         void draw_mirror_line();
+        void clean_window();
         void check_mirror_state();
+        void check_rainbow_state();
         void get_color();
         void _draw();
 };
